@@ -212,94 +212,7 @@ void waitUntilIntakeDone(int timeout = 2500) {
         time += 10;
     }
 }
-/* 
-void waitUntilIntakeDone2(int timeout = 700) {
 
-    int time = 0;
-    int stableTime = 0;
-
-    while(time < timeout) {
-
-        double vel = fabs(intakeMotor1.get_actual_velocity());
-
-        // still scoring (loaded)
-        if(vel < 650) {
-            stableTime = 0;
-        }
-
-        // finished scoring (free spinning)
-        else if(vel > 670) {
-            stableTime += 10;
-        }
-
-        // require stable free-spin for 150ms
-        if(stableTime > 150) {
-            break;
-        }
-
-        pros::delay(10);
-        time += 10;
-    }
-}
-
-void waitUntilIntakeDone3(int timeout = 1100) {
-
-    int time = 0;
-    int stableTime = 0;
-
-    while(time < timeout) {
-
-        double vel = fabs(intakeMotor1.get_actual_velocity());
-
-        // still scoring (loaded)
-        if(vel < 650) {
-            stableTime = 0;
-        }
-
-        // finished scoring (free spinning)
-        else if(vel > 680) {
-            stableTime += 10;
-        }
-
-        // require stable free-spin for 300ms
-        if(stableTime > 300) {
-            break;
-        }
-
-        pros::delay(10);
-        time += 10;
-    }
-}
-
-void waitUntilIntakeDone4(int timeout = 1500) {
-
-    int time = 0;
-    int stableTime = 0;
-
-    while(time < timeout) {
-
-        double vel = fabs(intakeMotor1.get_actual_velocity());
-
-        // still scoring (loaded)
-        if(vel < 650) {
-            stableTime = 0;
-        }
-
-        // finished scoring (free spinning)
-        else if(vel > 680) {
-            stableTime += 10;
-        }
-
-        // require stable free-spin for 300ms
-        if(stableTime > 300) {
-            break;
-        }
-
-        pros::delay(10);
-        time += 10;
-    }
-}
-*/ 
 
 
 const double back_sensor_left_offset  = 5.46875;
@@ -1243,10 +1156,85 @@ void testing() {
 
 }
 
+// ==========================================
+// TEST 1: STATIC SENSORS (No Movement)
+// ==========================================
+void staticSensorTest() {
+    while(true) {
+        pros::lcd::clear();
+        pros::lcd::print(0, "--- STATIC SENSOR TEST ---");
+        pros::lcd::print(2, "L: %.2f  |  R: %.2f", (double)leftSensor.get()/25.4, (double)rightSensor.get()/25.4);
+        pros::lcd::print(3, "BL: %.2f |  BR: %.2f", (double)backLeftSensor.get()/25.4, (double)backRightSensor.get()/25.4);
+        pros::lcd::print(5, "Hue: %.1f | Bright: %.1f", (double)parkSensor.get_hue(), (double)parkSensor.get_brightness());
+        pros::lcd::print(7, "STATUS: Live Monitoring...");
+        pros::delay(100); // 10Hz refresh for readability
+    }
+}
+
+// ==========================================
+// TEST 2: RESET VALIDATION (With Movement)
+// ==========================================
+void resetValidationTest() {
+    chassis.setPose(0, 0, 0);
+    pros::lcd::print(0, "TEST: Moving to Wall...");
+    
+    // Drive backwards to a spot where we know the back is facing a wall
+    chassis.moveToPoint(0, -36, 2000, {.forwards = false, .maxSpeed = 60});
+    pros::delay(500); // Wait for robot to settle
+
+    // 1. Record what the robot "Thought" its position was
+    lemlib::Pose oldPose = chassis.getPose();
+
+    // 2. Perform the sensor resets
+    resetPositionAndHeadingBack();
+    resetPositionLeft();
+
+    // 3. Record the "New" corrected position
+    lemlib::Pose newPose = chassis.getPose();
+
+    // 4. Calculate the jump (drift)
+    double jumpX = newPose.x - oldPose.x;
+    double jumpY = newPose.y - oldPose.y;
+    double jumpH = newPose.theta - oldPose.theta;
+
+    // 5. Display the Accuracy Report
+    while(true) {
+        pros::lcd::clear();
+        pros::lcd::print(0, "=== RESET ACCURACY REPORT ===");
+        pros::lcd::print(2, "X JUMPED: %.2f in", jumpX);
+        pros::lcd::print(3, "Y JUMPED: %.2f in", jumpY);
+        pros::lcd::print(4, "HDG JUMPED: %.2f deg", jumpH);
+        
+        pros::lcd::print(6, "NEW POSE: X:%.1f Y:%.1f H:%.1f", newPose.x, newPose.y, newPose.theta);
+        pros::lcd::print(7, "STATUS: Check Resets.");
+        pros::delay(1000);
+    }
+}
+
+
 void autonomous() {
+    int autonSelection = 11; // <--- CHANGE THIS NUMBER TO SELECT AUTON
 
-    finalskills();
-
+    switch (autonSelection) {
+        case 1:  awp(); break;
+        case 2:  middlegoal(); break;
+        case 3:  sevenballleft(); break;
+        case 4:  sevenballright(); break;
+        case 5:  fourballright(); break;
+        case 6:  middlegoallast(); break;
+        case 7:  sixthreesplit(); break;
+        case 8:  sigsawp(); break;
+        case 9:  skills(); break;
+        case 10: riskskills(); break;
+        case 11: finalskills(); break;
+        case 12: testing(); break;
+        case 13: staticSensorTest(); break;
+        case 14: resetValidationTest(); break;
+        
+        default: 
+            pros::lcd::print(0, "ERROR: No Auton Selected");
+            break;
+    }
 }
 
 /**
