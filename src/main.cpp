@@ -199,7 +199,7 @@ void waitUntilIntakeDone(int timeout = 2500) {
         }
 
         // finished scoring (free spinning)
-        else if(vel > 680) {
+        else if(vel > 670) {
             stableTime += 10;
         }
 
@@ -212,7 +212,7 @@ void waitUntilIntakeDone(int timeout = 2500) {
         time += 10;
     }
 }
-
+/* 
 void waitUntilIntakeDone2(int timeout = 700) {
 
     int time = 0;
@@ -299,6 +299,8 @@ void waitUntilIntakeDone4(int timeout = 1500) {
         time += 10;
     }
 }
+*/ 
+
 
 const double back_sensor_left_offset  = 5.46875;
 const double back_sensor_right_offset = 5.46875;
@@ -613,7 +615,7 @@ void middlegoal() {
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
     intakeRunning = true;
-    waitUntilIntakeDone4();
+    waitUntilIntakeDone(1500);
     intakeMotor1.move(0);
     intakeMotor2.move(0);
     intakeRunning = false;
@@ -644,7 +646,7 @@ void sevenballleft() {
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
     intakeRunning = true;
-    waitUntilIntakeDone4();
+    waitUntilIntakeDone(1500);
     intakeMotor1.move(0);
     intakeMotor2.move(0);
     intakeRunning = false;
@@ -675,7 +677,7 @@ void sevenballright() {
     intakeRunning = true;
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
-    waitUntilIntakeDone4();
+    waitUntilIntakeDone(1500);
     intakeMotor1.move(0);
     intakeMotor2.move(0);
     intakeRunning = false;
@@ -707,7 +709,7 @@ void fourballright() {
     intakeRunning = true;
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
-    waitUntilIntakeDone3();
+    waitUntilIntakeDone(1100);
     intakeMotor1.move(0);
     intakeMotor2.move(0);
     intakeRunning = false;
@@ -736,7 +738,7 @@ void middlegoallast() {
     intakeRunning = true;
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
-    waitUntilIntakeDone3();
+    waitUntilIntakeDone(1100);
     intakeRunning = false;
     chassis.moveToPoint(0,30,1000, {.forwards = true, .maxSpeed = 64}, false);
     chassis.turnToHeading(135, 650, {.maxSpeed = 127}, false);
@@ -799,7 +801,7 @@ void sixthreesplit() {
     intakeMotor2.move(-127);
     unloaderPiston.set_value(false);
     intakeRunning = true;
-    waitUntilIntakeDone4(); //12650
+    waitUntilIntakeDone(1500); //12650
     intakeMotor1.move(0);
     intakeMotor2.move(0);
     intakeRunning = false;
@@ -841,7 +843,7 @@ void sigsawp() {
     currentTheta = chassis.getPose().theta;
     chassis.setPose(0,0,currentTheta);
     intakeRunning = true;
-    waitUntilIntakeDone2();
+    waitUntilIntakeDone(700);
     intakeRunning = false;
     intakeMotor2.move(64);
     chassis.swingToHeading(-150, lemlib::DriveSide::RIGHT, 850, {.maxSpeed = 96}, false);
